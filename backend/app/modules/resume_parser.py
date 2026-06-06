@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.modules.extraction_service import ExtractionService
+from backend.app.services.extraction_service import ExtractionService
 
 
 class ResumeParserModule:

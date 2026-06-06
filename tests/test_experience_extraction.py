@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.modules.experience_service import ExperienceService
+from backend.app.services.experience_service import ExperienceService
 
 
 def test_extracts_experience_sections_company_titles_and_total_years() -> None:

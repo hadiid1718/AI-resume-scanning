@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.modules.candidate_information.candidate_service import CandidateInformationService
+from backend.app.services.candidate_service import CandidateInformationService
 
 
 def test_extracts_structured_contact_information_from_labeled_resume() -> None:

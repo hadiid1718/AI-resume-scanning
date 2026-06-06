@@ -6,7 +6,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from backend.app.modules.file_storage import DuplicateUploadError
 from backend.app.modules.file_validator import FileValidationError
-from backend.app.modules.upload_service import UploadService
+from backend.app.services.upload_service import UploadService
 from backend.app.schemas.resume import ResumeUploadResponse
 
 

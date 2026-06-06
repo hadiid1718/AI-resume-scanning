@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.modules.skill_service import SkillService
+from backend.app.services.skill_service import SkillService
 
 
 def test_extracts_and_normalizes_skills_across_categories() -> None:

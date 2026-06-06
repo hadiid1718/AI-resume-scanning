@@ -1,4 +1,4 @@
-from backend.app.modules.candidate_information.candidate_service import CandidateInformationService
+from backend.app.services.candidate_service import CandidateInformationService
 from backend.app.modules.candidate_information.extractor import CandidateInformationExtractor as _CandidateInformationExtractor
 
 

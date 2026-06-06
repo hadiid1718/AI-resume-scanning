@@ -1,14 +1,14 @@
 from backend.app.core.config import get_settings
 from backend.app.modules.ai_evaluation_engine import AIEvaluationEngine
-from backend.app.modules.candidate_information_extractor import CandidateInformationExtractor
 from backend.app.modules.database_layer import DatabaseLayer
-from backend.app.modules.job_description_parser import JobDescriptionParser
 from backend.app.modules.matching_engine import MatchingEngine
 from backend.app.modules.ranking_engine import RankingEngine
 from backend.app.modules.report_generator import ReportGenerator
 from backend.app.modules.resume_parser import ResumeParserModule
 from backend.app.modules.resume_upload import ResumeUploadModule
 from backend.app.modules.skill_extraction_engine import SkillExtractionEngine
+from backend.app.services.candidate_service import CandidateInformationService
+from backend.app.services.jd_service import JDService
 
 
 class ResumeAnalysisPipeline:
@@ -16,9 +16,9 @@ class ResumeAnalysisPipeline:
         settings = get_settings()
         self.upload_module = ResumeUploadModule(settings.upload_dir)
         self.resume_parser = ResumeParserModule()
-        self.candidate_extractor = CandidateInformationExtractor()
+        self.candidate_extractor = CandidateInformationService()
         self.skill_engine = SkillExtractionEngine()
-        self.job_parser = JobDescriptionParser()
+        self.job_parser = JDService()
         self.matching_engine = MatchingEngine()
         self.ranking_engine = RankingEngine()
         self.evaluation_engine = AIEvaluationEngine()

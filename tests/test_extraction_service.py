@@ -7,7 +7,7 @@ import pytest
 from docx import Document
 
 from backend.app.modules.docx_extractor import DOCXExtractor, DOCXExtractionError
-from backend.app.modules.extraction_service import ExtractionError, ExtractionService
+from backend.app.services.extraction_service import ExtractionError, ExtractionService
 from backend.app.modules.pdf_extractor import PDFExtractor, PDFExtractionError
 
 

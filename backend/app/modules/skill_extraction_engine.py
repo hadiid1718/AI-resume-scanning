@@ -1,4 +1,4 @@
-from backend.app.modules.skill_service import SkillService
+from backend.app.services.skill_service import SkillService
 
 
 class SkillExtractionEngine:
