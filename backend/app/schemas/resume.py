@@ -2,10 +2,14 @@ from pydantic import BaseModel, Field
 
 
 class ResumeUploadResponse(BaseModel):
+    file_id: str
     filename: str
+    stored_filename: str
     storage_path: str
+    file_hash: str
     content_type: str | None = None
     size_bytes: int = Field(default=0, ge=0)
+    uploaded_at: str
 
 
 class ResumeTextRequest(BaseModel):

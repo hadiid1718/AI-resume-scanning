@@ -1,15 +1,17 @@
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_settings
 from backend.app.core.database import get_db
 from backend.app.modules.database_layer import DatabaseLayer
+from backend.app.api.upload_routes import router as upload_router
 from backend.app.schemas.job import JobDescriptionRequest, JobDescriptionResponse
 from backend.app.schemas.match import EvaluationResponse, MatchRequest, MatchResponse, RankResponse, ReportResponse
-from backend.app.schemas.resume import CandidateInfoResponse, ParsedResumeResponse, ResumeTextRequest, ResumeUploadResponse
+from backend.app.schemas.resume import CandidateInfoResponse, ParsedResumeResponse, ResumeTextRequest
 from backend.app.services.pipeline import ResumeAnalysisPipeline
 
 router = APIRouter(prefix="/api/v1", tags=["resume-scanning"])
+router.include_router(upload_router)
 
 
 def get_pipeline(db: Session = Depends(get_db)) -> ResumeAnalysisPipeline:
@@ -20,12 +22,6 @@ def get_pipeline(db: Session = Depends(get_db)) -> ResumeAnalysisPipeline:
 def health() -> dict:
     settings = get_settings()
     return {"status": "ok", "app_name": settings.app_name, "environment": settings.environment}
-
-
-@router.post("/resumes/upload", response_model=ResumeUploadResponse)
-async def upload_resume(file: UploadFile = File(...), pipeline: ResumeAnalysisPipeline = Depends(get_pipeline)) -> dict:
-    content = await file.read()
-    return pipeline.upload_module.save(file.filename, content, file.content_type)
 
 
 @router.post("/resumes/parse", response_model=ParsedResumeResponse)
