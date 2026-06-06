@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: resume_scanner_postgres
+    environment:
+      POSTGRES_USER: resume_user
+      POSTGRES_PASSWORD: resume_password
+      POSTGRES_DB: resume_scanner
+    ports:
+      - "5432:5432"
+    volumes:
+      - resume_scanner_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  resume_scanner_postgres_data:
