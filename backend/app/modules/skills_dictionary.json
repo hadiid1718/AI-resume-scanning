@@ -1,0 +1,46 @@
+{
+  "programming_languages": {
+    "Python": ["python", "py"],
+    "Java": ["java"],
+    "JavaScript": ["javascript", "js"],
+    "TypeScript": ["typescript", "ts"],
+    "C++": ["c++", "cpp"],
+    "C#": ["c#", "csharp"],
+    "Go": ["go", "golang"],
+    "SQL": ["sql"]
+  },
+  "frameworks": {
+    "FastAPI": ["fastapi"],
+    "Django": ["django"],
+    "Flask": ["flask"],
+    "Streamlit": ["streamlit"],
+    "React": ["react"],
+    "Node.js": ["node.js", "nodejs", "node"],
+    "Spring Boot": ["spring boot", "springboot"],
+    "Angular": ["angular"]
+  },
+  "databases": {
+    "PostgreSQL": ["postgresql", "postgres"],
+    "MySQL": ["mysql"],
+    "MongoDB": ["mongodb", "mongo db"],
+    "SQLite": ["sqlite"],
+    "Redis": ["redis"],
+    "SQL Server": ["sql server", "mssql"]
+  },
+  "cloud_technologies": {
+    "AWS": ["aws", "amazon web services"],
+    "Azure": ["azure", "microsoft azure"],
+    "Google Cloud Platform": ["gcp", "google cloud", "google cloud platform"],
+    "Docker": ["docker"],
+    "Kubernetes": ["kubernetes", "k8s"]
+  },
+  "devops_tools": {
+    "Git": ["git"],
+    "GitHub": ["github"],
+    "GitLab": ["gitlab"],
+    "Jenkins": ["jenkins"],
+    "Terraform": ["terraform"],
+    "Ansible": ["ansible"],
+    "CI/CD": ["ci/cd", "cicd", "continuous integration", "continuous delivery", "continuous deployment"]
+  }
+}

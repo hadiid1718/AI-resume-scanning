@@ -1,32 +1,17 @@
-from collections import Counter
+from backend.app.modules.skill_service import SkillService
 
 
 class SkillExtractionEngine:
-    default_skills = {
-        "python",
-        "fastapi",
-        "streamlit",
-        "sql",
-        "postgresql",
-        "sqlalchemy",
-        "pandas",
-        "numpy",
-        "machine learning",
-        "nlp",
-        "docker",
-        "aws",
-        "git",
-        "rest api",
-        "microservices",
-    }
+    def __init__(self) -> None:
+        self.service = SkillService()
 
     def extract(self, text: str) -> dict:
-        normalized = text.lower()
-        matches = sorted({skill for skill in self.default_skills if skill in normalized})
-        tokens = [token for token in normalized.replace("/", " ").split() if token]
-        common_terms = [term for term, _ in Counter(tokens).most_common(20)]
-
+        extracted = self.service.extract(text)
         return {
-            "skills": matches,
-            "keyword_terms": common_terms,
+            "skills": extracted["skills"],
+            "keyword_terms": extracted["skills"],
+            "categorized_skills": extracted["categorized_skills"],
+            "confidence_scores": extracted["confidence_scores"],
+            "all_matches": extracted["all_matches"],
         }
+
