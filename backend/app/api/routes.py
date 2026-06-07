@@ -10,6 +10,9 @@ from backend.app.schemas.match import EvaluationResponse, MatchRequest, MatchRes
 from backend.app.schemas.resume import CandidateInfoResponse, ParsedResumeResponse, ResumeTextRequest
 from backend.app.services.pipeline import ResumeAnalysisPipeline
 
+from backend.app.schemas.ai_evaluation import AIEvaluationRequest, AIEvaluationResponse, AIBatchEvaluationRequest, AIBatchEvaluationResponse
+from backend.app.services.ai_evaluator import AIEvaluationEngine
+
 router = APIRouter(prefix="/api/v1", tags=["resume-scanning"])
 router.include_router(upload_router)
 
@@ -75,3 +78,34 @@ def analyze_resume(
     pipeline: ResumeAnalysisPipeline = Depends(get_pipeline),
 ) -> dict:
     return pipeline.analyze(resume_text=resume_text, job_title=job_title, job_description=job_description)
+
+
+
+@router.post("/ai/evaluate", response_model=AIEvaluationResponse)
+def ai_evaluate_resume(
+    payload: AIEvaluationRequest,
+    pipeline: ResumeAnalysisPipeline = Depends(get_pipeline),
+) -> dict:
+    return pipeline.ai_evaluation_engine.evaluate(
+        candidate=payload.candidate,
+        job=payload.job,
+        match_result=payload.match_result,
+    )
+
+
+@router.post("/ai/evaluate/batch", response_model=AIBatchEvaluationResponse)
+def ai_evaluate_batch(
+    payload: AIBatchEvaluationRequest,
+    db: Session = Depends(get_db),
+) -> dict:
+    engine = AIEvaluationEngine()
+    results = [
+        engine.evaluate(
+            candidate=item.candidate,
+            job=item.job,
+            match_result=item.match_result,
+        )
+        for item in payload.candidates
+    ]
+    ranked = sorted(results, key=lambda r: r["score"], reverse=True)
+    return {"evaluations": ranked, "total": len(ranked)}
