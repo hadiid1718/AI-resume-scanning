@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Form
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_settings
@@ -11,11 +12,15 @@ from backend.app.schemas.resume import CandidateInfoResponse, ParsedResumeRespon
 from backend.app.services.pipeline import ResumeAnalysisPipeline
 
 from backend.app.schemas.ai_evaluation import AIEvaluationRequest, AIEvaluationResponse, AIBatchEvaluationRequest, AIBatchEvaluationResponse
-from backend.app.services.ai_evaluator import AIEvaluationEngine
 
 router = APIRouter(prefix="/api/v1", tags=["resume-scanning"])
 router.include_router(upload_router)
 
+
+class BatchAnalyzeRequest(BaseModel):
+    resume_texts: list[str]
+    job_title: str
+    job_description: str
 
 def get_pipeline(db: Session = Depends(get_db)) -> ResumeAnalysisPipeline:
     return ResumeAnalysisPipeline(DatabaseLayer(db))
@@ -80,13 +85,55 @@ def analyze_resume(
     return pipeline.analyze(resume_text=resume_text, job_title=job_title, job_description=job_description)
 
 
-
-@router.post("/ai/evaluate", response_model=AIEvaluationResponse)
-def ai_evaluate_resume(
-    payload: AIEvaluationRequest,
+@router.post("/analyze/batch")
+def analyze_batch(
+    payload: BatchAnalyzeRequest,
     pipeline: ResumeAnalysisPipeline = Depends(get_pipeline),
 ) -> dict:
-    return pipeline.ai_evaluation_engine.evaluate(
+    return pipeline.analyze_batch(
+        resume_texts=payload.resume_texts,
+        job_title=payload.job_title,
+        job_description=payload.job_description,
+    )
+
+
+@router.get("/rankings")
+def get_rankings(db: Session = Depends(get_db), limit: int = 100) -> dict:
+    layer = DatabaseLayer(db)
+    rankings = layer.get_rankings(limit=limit)
+    scores = [r["ai_score"] for r in rankings]
+    return {
+        "rankings": rankings,
+        "total": len(rankings),
+        "average_score": round(sum(scores) / len(scores), 1) if scores else 0,
+    }
+
+
+@router.get("/candidates/{evaluation_id}")
+def get_candidate(evaluation_id: int, db: Session = Depends(get_db)) -> dict:
+    layer = DatabaseLayer(db)
+    record = layer.get_evaluation(evaluation_id)
+    if not record:
+        return {"error": "Not found"}
+    return {
+        "id": record.id,
+        "candidate_name": record.candidate_name,
+        "job_title": record.job_title,
+        "ai_score": record.ai_score,
+        "recommendation": record.recommendation,
+        "skills": record.skills,
+        "experience_summary": record.experience_summary,
+        "payload": record.payload,
+    }
+
+
+
+@router.post("/ai/evaluate", response_model=AIEvaluationResponse)
+def ai_evaluate_resume(payload: AIEvaluationRequest) -> dict:
+    from backend.app.services.ai_evaluator import AIEvaluationEngine
+
+    engine = AIEvaluationEngine()
+    return engine.evaluate(
         candidate=payload.candidate,
         job=payload.job,
         match_result=payload.match_result,
@@ -98,6 +145,8 @@ def ai_evaluate_batch(
     payload: AIBatchEvaluationRequest,
     db: Session = Depends(get_db),
 ) -> dict:
+    from backend.app.services.ai_evaluator import AIEvaluationEngine
+
     engine = AIEvaluationEngine()
     results = [
         engine.evaluate(

@@ -59,3 +59,17 @@ class ReportRecord(Base):
     markdown: Mapped[str] = mapped_column(Text, nullable=False)
     payload: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class CandidateEvaluation(Base):
+    __tablename__ = "candidate_evaluations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    candidate_name: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    job_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ai_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0, index=True)
+    recommendation: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    skills: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
+    experience_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    payload: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

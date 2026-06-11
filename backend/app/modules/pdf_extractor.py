@@ -2,9 +2,6 @@ from __future__ import annotations
 
 import logging
 
-import fitz
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -12,8 +9,19 @@ class PDFExtractionError(Exception):
     pass
 
 
+def _get_fitz():
+    try:
+        import fitz
+    except ModuleNotFoundError as exc:
+        raise PDFExtractionError(
+            "PDF support requires pymupdf. Run: pip install pymupdf"
+        ) from exc
+    return fitz
+
+
 class PDFExtractor:
     def extract(self, pdf_bytes: bytes) -> str:
+        fitz = _get_fitz()
         try:
             document = fitz.open(stream=pdf_bytes, filetype="pdf")
         except Exception as exc:

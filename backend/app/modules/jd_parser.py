@@ -101,9 +101,16 @@ class JDParser:
             sections=sections,
         )
 
+        combined_skills = sorted(self._unique(must_have_skills + nice_to_have_skills))
+        requirements: list[str] = list(education_requirements)
+        if experience_required:
+            requirements.append(experience_required)
+
         return {
             "title": title,
             "description": description,
+            "skills": combined_skills,
+            "requirements": requirements,
             **result.as_dict(),
         }
 

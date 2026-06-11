@@ -12,12 +12,18 @@ class Base(DeclarativeBase):
 
 settings = get_settings()
 
-print("DATABASE_URL =", settings.database_url)
+# SQLite needs check_same_thread disabled so FastAPI's threadpool can share the engine.
+_connect_args = (
+    {"check_same_thread": False}
+    if settings.database_url.startswith("sqlite")
+    else {}
+)
 
 engine = create_engine(
     settings.database_url,
     future=True,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args=_connect_args,
 )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False)
 

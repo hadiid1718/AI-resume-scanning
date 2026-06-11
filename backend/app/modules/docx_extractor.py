@@ -3,9 +3,6 @@ from __future__ import annotations
 import logging
 from io import BytesIO
 
-from docx import Document
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +12,13 @@ class DOCXExtractionError(Exception):
 
 class DOCXExtractor:
     def extract(self, docx_bytes: bytes) -> str:
+        try:
+            from docx import Document
+        except ModuleNotFoundError as exc:
+            raise DOCXExtractionError(
+                "DOCX support requires python-docx. Run: pip install python-docx"
+            ) from exc
+
         try:
             document = Document(BytesIO(docx_bytes))
         except Exception as exc:

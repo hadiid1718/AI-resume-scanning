@@ -10,5 +10,6 @@ venv/
 *.pyo
 *.pyd
 *.sqlite3
+*.db
 uploads/
 reports/

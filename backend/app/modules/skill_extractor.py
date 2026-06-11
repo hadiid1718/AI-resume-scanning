@@ -5,8 +5,7 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-
-import spacy
+from typing import Any
 
 
 logger = logging.getLogger(__name__)
@@ -20,17 +19,35 @@ class SkillMatch:
     source: str
 
 
+class _TextDoc:
+    """Fallback when spaCy is not installed."""
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+
+def _load_spacy_nlp():
+    try:
+        import spacy
+
+        nlp = spacy.blank("en")
+        if "sentencizer" not in nlp.pipe_names:
+            nlp.add_pipe("sentencizer")
+        return nlp
+    except ImportError:
+        logger.warning("spaCy not installed — using dictionary-only skill extraction.")
+        return None
+
+
 class SkillExtractor:
     def __init__(self, dictionary_path: str | Path | None = None) -> None:
         self.dictionary_path = Path(dictionary_path) if dictionary_path else Path(__file__).with_name("skills_dictionary.json")
         self.skills_dictionary = self._load_dictionary()
-        self.nlp = spacy.blank("en")
-        if "sentencizer" not in self.nlp.pipe_names:
-            self.nlp.add_pipe("sentencizer")
+        self.nlp = _load_spacy_nlp()
 
     def extract(self, text: str) -> dict:
         normalized_text = self._normalize_text(text)
-        doc = self.nlp(normalized_text)
+        doc = self.nlp(normalized_text) if self.nlp else _TextDoc(normalized_text)
         lower_text = normalized_text.lower()
 
         matches: dict[str, dict[str, SkillMatch]] = {
@@ -106,7 +123,7 @@ class SkillExtractor:
             logger.exception("Unable to load skills dictionary from %s", self.dictionary_path)
             raise
 
-    def _score_skill(self, canonical_name: str, aliases: list[str], lower_text: str, doc: spacy.tokens.Doc) -> float:
+    def _score_skill(self, canonical_name: str, aliases: list[str], lower_text: str, doc: Any) -> float:
         alias_hits = 0
         alias_weight = 0.0
 
@@ -127,7 +144,14 @@ class SkillExtractor:
         raw_score = min(1.0, 0.2 + alias_weight / max(1, len(aliases) + 1) + nlp_bonus)
         return round(raw_score, 4)
 
-    def _nlp_bonus(self, canonical_name: str, aliases: list[str], doc: spacy.tokens.Doc) -> float:
+    def _nlp_bonus(self, canonical_name: str, aliases: list[str], doc: Any) -> float:
+        if not hasattr(doc, "__iter__"):
+            text = doc.text.lower()
+            for alias in aliases:
+                if alias in text:
+                    return 0.05
+            return 0.0
+
         text = doc.text.lower()
         tokens = [token.text.lower() for token in doc if not token.is_space]
         canonical_tokens = self._normalize_alias(canonical_name).split()

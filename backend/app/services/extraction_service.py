@@ -3,9 +3,11 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from backend.app.modules.docx_extractor import DOCXExtractionError, DOCXExtractor
-from backend.app.modules.pdf_extractor import PDFExtractionError, PDFExtractor
+if TYPE_CHECKING:
+    from backend.app.modules.docx_extractor import DOCXExtractor
+    from backend.app.modules.pdf_extractor import PDFExtractor
 
 
 logger = logging.getLogger(__name__)
@@ -23,11 +25,34 @@ class ExtractionResult:
 
 
 class ExtractionService:
-    def __init__(self, pdf_extractor: PDFExtractor | None = None, docx_extractor: DOCXExtractor | None = None) -> None:
-        self.pdf_extractor = pdf_extractor or PDFExtractor()
-        self.docx_extractor = docx_extractor or DOCXExtractor()
+    def __init__(
+        self,
+        pdf_extractor: PDFExtractor | None = None,
+        docx_extractor: DOCXExtractor | None = None,
+    ) -> None:
+        self._pdf_extractor = pdf_extractor
+        self._docx_extractor = docx_extractor
+
+    @property
+    def pdf_extractor(self) -> PDFExtractor:
+        if self._pdf_extractor is None:
+            from backend.app.modules.pdf_extractor import PDFExtractor
+
+            self._pdf_extractor = PDFExtractor()
+        return self._pdf_extractor
+
+    @property
+    def docx_extractor(self) -> DOCXExtractor:
+        if self._docx_extractor is None:
+            from backend.app.modules.docx_extractor import DOCXExtractor
+
+            self._docx_extractor = DOCXExtractor()
+        return self._docx_extractor
 
     def extract_from_file(self, filename: str, file_bytes: bytes) -> ExtractionResult:
+        from backend.app.modules.docx_extractor import DOCXExtractionError
+        from backend.app.modules.pdf_extractor import PDFExtractionError
+
         file_type = self._detect_file_type(filename)
 
         try:

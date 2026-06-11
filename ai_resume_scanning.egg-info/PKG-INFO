@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: ai-resume-scanning
+Version: 0.1.0
+Summary: AI Resume Scanning System
+Requires-Python: >=3.11
