@@ -10,6 +10,13 @@ from frontend.utils.session_state import get_candidates, init_session_state
 def render_sidebar(page_names: list[str] | None = None) -> str | None:
     init_session_state()
 
+
+    with st.sidebar:
+        #  Add this — hides the auto-generated page nav
+        st.markdown(
+            "<style>[data-testid='stSidebarNav']{display:none;}</style>",
+            unsafe_allow_html=True,
+        )
     with st.sidebar:
         st.markdown(
             """
@@ -54,7 +61,6 @@ def render_sidebar(page_names: list[str] | None = None) -> str | None:
         candidates = get_candidates()
         st.markdown("**Session overview**")
         st.caption(f"Candidates analyzed: **{len(candidates)}**")
-        st.caption(f"Job title: **{st.session_state.job_title or '—'}**")
 
         if candidates and st.button("Clear all candidates", use_container_width=True):
             from frontend.utils.session_state import clear_candidates
